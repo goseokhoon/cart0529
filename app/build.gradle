@@ -1,6 +1,5 @@
 plugins {
     id 'com.android.application'
-    id 'kotlin-android'
 }
 
 apply plugin: 'com.google.gms.google-services'
@@ -35,7 +34,7 @@ android {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation 'com.rmtheis:tess-two:9.1.0'
     implementation("org.altbeacon:android-beacon-library:2.19.5")
     implementation 'androidx.appcompat:appcompat:1.4.1' // 적절히 변경해주세요
     implementation 'com.google.android.material:material:1.5.0' // 적절히 변경해주세요

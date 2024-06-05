@@ -43,6 +43,16 @@
 
         <!-- PayProductActivity 등록 -->
         <activity android:name=".PayProductActivity" />
+
+        <!-- AuthTestActivity 등록 -->
+        <activity android:name=".AuthTestActivity" />
+
+        <!-- OcrProductActivity 등록 -->
+        <activity android:name=".OcrActivity" />
+
+        <!-- LoginActivity 등록 -->
+        <activity android:name=".LoginActivity" />
+
     </application>
 
 </manifest>

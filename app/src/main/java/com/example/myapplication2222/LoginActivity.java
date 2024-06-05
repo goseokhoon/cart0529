@@ -5,13 +5,10 @@ import android.util.Log;
 
 import com.example.myapplication2222.repository.FirebaseRepository;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Map;
 
-public class MyApplication extends Application {
+public class LoginActivity extends Application {
     @Override
     public void onCreate() {
         super.onCreate();

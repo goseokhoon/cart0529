@@ -1,8 +1,7 @@
 plugins {
     id 'com.android.application'
+    id 'com.google.gms.google-services'
 }
-
-apply plugin: 'com.google.gms.google-services'
 
 android {
     namespace = "com.example.myapplication2222"
@@ -47,6 +46,10 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:33.0.0')
     // Firebase 제품에 대한 종속성 추가
     implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.firebase:firebase-auth:21.0.0'
+    implementation 'com.google.firebase:firebase-firestore:23.0.0'
+
     // 다른 Firebase 제품에 대한 종속성 추가
     // https://firebase.google.com/docs/android/setup#available-libraries
+
 }

@@ -45,13 +45,22 @@
         android:layout_marginTop="30dp" />
 
     <Button
-        android:id="@+id/ocr_button"
+    android:id="@+id/ocr_button"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="신분증 인식"
+    android:textSize="30sp"
+    android:layout_below="@id/cart_button"
+    android:layout_centerHorizontal="true"
+    android:layout_marginTop="30dp" />
+
+    <Button
+        android:id="@+id/test_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="신분증 인식"
-        android:textSize="30sp"
         android:layout_below="@id/cart_button"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="30dp" />
+        android:layout_marginTop="95dp"
+        android:text="DB테스트"
+        android:textSize="30sp" />
 
 </RelativeLayout>

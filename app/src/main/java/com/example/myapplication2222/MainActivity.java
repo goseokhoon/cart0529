@@ -15,7 +15,6 @@ public class MainActivity extends AppCompatActivity {
         // 버튼 인스턴스를 가져옵니다.
         Button mapButton = findViewById(R.id.map_button);
         Button cartButton = findViewById(R.id.cart_button); // 장바구니 버튼 추가
-        Button testBtn = findViewById(R.id.test_button);
 
         // 버튼에 클릭 리스너를 설정합니다.
         mapButton.setOnClickListener(new View.OnClickListener() {
@@ -32,15 +31,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // 장바구니 화면으로 이동하는 Intent를 생성합니다.
                 Intent intent = new Intent(MainActivity.this, CartActivity.class);
-                startActivity(intent);  // 액티비티 전환
-            }
-        });
-
-        testBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // MapActivity로 이동하는 Intent를 생성합니다.
-                Intent intent = new Intent(MainActivity.this, AuthTestActivity.class);
                 startActivity(intent);  // 액티비티 전환
             }
         });

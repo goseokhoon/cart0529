@@ -6,9 +6,10 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.4.1' // 적절한 버전으로 설정
-        classpath 'com.google.gms:google-services:4.3.10'
+        classpath 'com.google.gms:google-services:4.4.2'
         // 기타 필요한 클래스패스 의존성 추가
     }
+
 }
 allprojects {
     repositories {

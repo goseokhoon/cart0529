@@ -15,7 +15,15 @@
         android:layout_alignParentTop="true"
         android:background="#4169E1">
     </LinearLayout>
+
     <!-- 상품 정보 표시를 위한 TextView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:textSize="20sp"
+        android:padding="8dp" />
+
     <TextView
         android:id="@+id/product_info_text"
         android:layout_width="wrap_content"
@@ -26,16 +34,6 @@
         android:textSize="30sp"
         android:textColor="#FFFFFF"/>
 
-    <!-- 예시: 상품 정보 -->
-    <TextView
-        android:id="@+id/product_example_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="콜라"
-        android:layout_below="@id/product_info_text"
-        android:layout_marginTop="15dp"
-        android:textSize="30sp"
-        android:layout_alignLeft="@id/product_info_text" />
 
     <!-- 수량 표시를 위한 TextView -->
     <TextView
@@ -49,16 +47,6 @@
         android:layout_alignTop="@id/product_info_text"
         android:textColor="#FFFFFF"/>
 
-    <!-- 예시: 수량 -->
-    <TextView
-        android:id="@+id/quantity_example_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="1개"
-        android:layout_below="@id/quantity_text"
-        android:layout_marginTop="15dp"
-        android:textSize="30sp"
-        android:layout_alignLeft="@id/quantity_text" />
 
     <!-- 상품 가격 표시를 위한 TextView -->
     <TextView
@@ -72,16 +60,6 @@
         android:layout_marginLeft="32dp"
         android:textColor="#FFFFFF"/> <!-- 간격을 조절하기 위해 margin 조정 -->
 
-    <!-- 예시: 가격 -->
-    <TextView
-        android:id="@+id/price_example_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="1000원"
-        android:layout_below="@id/price_text"
-        android:layout_marginTop="15dp"
-        android:textSize="30sp"
-        android:layout_alignLeft="@id/price_text" />
     <!-- 상품 삭제 버튼 -->
     <Button
         android:id="@+id/delete_button"
@@ -104,7 +82,8 @@
         android:layout_below="@id/delete_button"
         android:layout_marginTop="40dp"
         android:background="@android:color/holo_green_light"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:textColor="#000000"/>
 
     <!-- 결제 버튼 -->
     <Button
@@ -116,7 +95,10 @@
         android:layout_below="@id/add_button"
         android:layout_marginTop="40dp"
         android:background="@android:color/holo_blue_light"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:textColor="#000000"/>
+
+
 
     <!-- 기타 필요한 레이아웃 요소들을 추가하세요 -->
 

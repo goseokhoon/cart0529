@@ -16,11 +16,12 @@
         android:background="#4169E1">
     </LinearLayout>
 
-    <!-- 상품 정보 표시를 위한 TextView -->
+    <!-- 상품 정보 표시를 위한 RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@id/product_banner"
         android:textSize="20sp"
         android:padding="8dp" />
 
@@ -30,6 +31,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_marginTop="15dp"
+        android:layout_marginLeft="10dp"
         android:text="상품 정보"
         android:textSize="30sp"
         android:textColor="#FFFFFF"/>
@@ -42,7 +44,7 @@
         android:layout_height="wrap_content"
         android:text="수량"
         android:layout_toRightOf="@id/product_info_text"
-        android:layout_marginLeft="32dp"
+        android:layout_marginLeft="60dp"
         android:textSize="30sp"
         android:layout_alignTop="@id/product_info_text"
         android:textColor="#FFFFFF"/>
@@ -57,7 +59,7 @@
         android:text="상품 가격"
         android:textSize="30sp"
         android:layout_alignTop="@id/product_info_text"
-        android:layout_marginLeft="32dp"
+        android:layout_marginLeft="40dp"
         android:textColor="#FFFFFF"/> <!-- 간격을 조절하기 위해 margin 조정 -->
 
     <!-- 상품 삭제 버튼 -->
@@ -79,10 +81,10 @@
         android:layout_height="wrap_content"
         android:text="상품 추가"
         android:textSize="30sp"
-        android:layout_below="@id/delete_button"
-        android:layout_marginTop="40dp"
-        android:background="@android:color/holo_green_light"
+        android:layout_above="@id/pay_button"
         android:layout_centerHorizontal="true"
+        android:layout_marginBottom="16dp"
+        android:background="@android:color/holo_green_light"
         android:textColor="#000000"/>
 
     <!-- 결제 버튼 -->
@@ -92,10 +94,10 @@
         android:layout_height="wrap_content"
         android:text="결제"
         android:textSize="30sp"
-        android:layout_below="@id/add_button"
-        android:layout_marginTop="40dp"
-        android:background="@android:color/holo_blue_light"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
+        android:layout_marginBottom="16dp"
+        android:background="@android:color/holo_blue_light"
         android:textColor="#000000"/>
 
 

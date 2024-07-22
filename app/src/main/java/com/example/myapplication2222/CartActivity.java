@@ -5,15 +5,20 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +30,7 @@ public class CartActivity extends AppCompatActivity implements ProductAdapter.On
     private List<Product> productList;
     private FirebaseFirestore db;
     private Context context;
+    private TextView totalPriceTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +45,9 @@ public class CartActivity extends AppCompatActivity implements ProductAdapter.On
         productList = new ArrayList<>();
         productAdapter = new ProductAdapter(productList, this, this); // Context로서 this(CartActivity)를 전달
         recyclerView.setAdapter(productAdapter);
+
+        // 총 결제액 TextView 초기화
+        totalPriceTextView = findViewById(R.id.total_amount);
 
         // FirebaseFirestore 객체 초기화
         db = FirebaseFirestore.getInstance();
@@ -66,18 +75,19 @@ public class CartActivity extends AppCompatActivity implements ProductAdapter.On
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             String id = document.getId(); // 문서 ID 가져오기
                             String name = document.getString("name");
-                            Double price = document.getDouble("price");
-                            if (price == null) {
-                                price = 0.0; // 기본값 설정 또는 다른 처리 방법 적용
-                                Log.w("CartActivity", "Document " + id + " has null price field");
-                            }
+
+                            // 가격을 double로 가져와서 int로 변환
+                            Double priceDouble = document.getDouble("price");
+                            int price = (priceDouble != null) ? priceDouble.intValue() : 0;
+
                             Long quantityLong = document.getLong("quantity");
-                            int quantity = (quantityLong != null) ? quantityLong.intValue() : 0; // null 체크 후 int로 변환
+                            int quantity = (quantityLong != null) ? quantityLong.intValue() : 0;
 
                             Product product = new Product(id, name, price, quantity);
                             productList.add(product);
                         }
                         productAdapter.notifyDataSetChanged(); // Adapter에 데이터 변경 알림
+                        updateTotalPrice(); // 총 결제액 업데이트
                     } else {
                         // 데이터 가져오기 실패 처리
                         Exception e = task.getException();
@@ -91,26 +101,29 @@ public class CartActivity extends AppCompatActivity implements ProductAdapter.On
 
     private void setupFirestoreListener() {
         db.collection("kartrider")
-                .addSnapshotListener((queryDocumentSnapshots, e) -> {
-                    if (e != null) {
-                        Log.w("CartActivity", "Listen failed.", e);
-                        return;
-                    }
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@NonNull QuerySnapshot queryDocumentSnapshots, @NonNull FirebaseFirestoreException e) {
+                        if (e != null) {
+                            Log.w("CartActivity", "Listen failed.", e);
+                            return;
+                        }
 
-                    for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
-                        switch (dc.getType()) {
-                            case ADDED:
-                                Log.d("CartActivity", "New product: " + dc.getDocument().getData());
-                                updateProductList(dc.getDocument());
-                                break;
-                            case MODIFIED:
-                                Log.d("CartActivity", "Modified product: " + dc.getDocument().getData());
-                                updateProductList(dc.getDocument());
-                                break;
-                            case REMOVED:
-                                Log.d("CartActivity", "Removed product: " + dc.getDocument().getData());
-                                deleteProduct(dc.getDocument().getId());
-                                break;
+                        for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
+                            switch (dc.getType()) {
+                                case ADDED:
+                                    Log.d("CartActivity", "New product: " + dc.getDocument().getData());
+                                    updateProductList(dc.getDocument());
+                                    break;
+                                case MODIFIED:
+                                    Log.d("CartActivity", "Modified product: " + dc.getDocument().getData());
+                                    updateProductList(dc.getDocument());
+                                    break;
+                                case REMOVED:
+                                    Log.d("CartActivity", "Removed product: " + dc.getDocument().getData());
+                                    deleteProduct(dc.getDocument().getId());
+                                    break;
+                            }
                         }
                     }
                 });
@@ -119,13 +132,13 @@ public class CartActivity extends AppCompatActivity implements ProductAdapter.On
     private void updateProductList(QueryDocumentSnapshot document) {
         String id = document.getId(); // 문서 ID 가져오기
         String name = document.getString("name");
-        Double price = document.getDouble("price");
-        if (price == null) {
-            price = 0.0; // 기본값 설정 또는 다른 처리 방법 적용
-            Log.w("CartActivity", "Document " + id + " has null price field");
-        }
+
+        // 가격을 double로 가져와서 int로 변환
+        Double priceDouble = document.getDouble("price");
+        int price = (priceDouble != null) ? priceDouble.intValue() : 0;
+
         Long quantityLong = document.getLong("quantity");
-        int quantity = (quantityLong != null) ? quantityLong.intValue() : 0; // null 체크 후 int로 변환
+        int quantity = (quantityLong != null) ? quantityLong.intValue() : 0;
 
         Product updatedProduct = new Product(id, name, price, quantity);
 
@@ -144,12 +157,27 @@ public class CartActivity extends AppCompatActivity implements ProductAdapter.On
             productList.add(updatedProduct);
             productAdapter.notifyItemInserted(productList.size() - 1); // 마지막 위치에 아이템 추가
         }
+
+        // 총 결제액 업데이트
+        updateTotalPrice();
     }
 
     private void deleteProduct(String productId) {
         // 상품 목록에서 제거
         productList.removeIf(product -> product.getId().equals(productId));
         productAdapter.notifyDataSetChanged();
+
+        // 총 결제액 업데이트
+        updateTotalPrice();
+    }
+
+    // 총 결제액을 계산하고 업데이트하는 함수
+    private void updateTotalPrice() {
+        int totalPrice = 0;
+        for (Product product : productList) {
+            totalPrice += product.getPrice() * product.getQuantity();
+        }
+        totalPriceTextView.setText("총 금액: " + totalPrice + "원");
     }
 
     // ProductAdapter에서 클릭 이벤트를 처리하기 위한 인터페이스 구현
@@ -167,7 +195,17 @@ public class CartActivity extends AppCompatActivity implements ProductAdapter.On
                     }
                 });
     }
+
+    // 수량 변경 이벤트를 처리하여 총 결제액 업데이트
+    @Override
+    public void onProductQuantityChanged() {
+        updateTotalPrice();
+    }
 }
+
+
+
+
 
 
 

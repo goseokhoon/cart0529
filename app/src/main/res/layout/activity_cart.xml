@@ -34,7 +34,7 @@
         android:layout_height="wrap_content"
         android:text="수량"
         android:layout_toRightOf="@id/product_info_text"
-        android:layout_marginLeft="50dp"
+        android:layout_marginLeft="100dp"
         android:textSize="30sp"
         android:layout_alignTop="@id/product_info_text"
         android:textColor="#FFFFFF"/>
@@ -48,7 +48,7 @@
         android:text="가격"
         android:textSize="30sp"
         android:layout_alignTop="@id/product_info_text"
-        android:layout_marginLeft="50dp"
+        android:layout_marginLeft="90dp"
         android:textColor="#FFFFFF"/> <!-- 간격을 조절하기 위해 margin 조정 -->
 
     <!-- 상품 정보 표시를 위한 RecyclerView -->

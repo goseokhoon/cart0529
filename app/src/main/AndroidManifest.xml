@@ -37,23 +37,22 @@
         <!-- CartActivity 등록 -->
         <activity android:name=".CartActivity" />
 
-        <!-- DeleteProductActivity 등록 -->
-        <activity android:name=".DeleteProductActivity" />
-
-        <!-- AddProductActivity 등록 -->
-        <activity android:name=".AddProductActivity" />
-
-        <!-- PayProductActivity 등록 -->
-        <activity android:name=".PayProductActivity" />
-
-        <!-- AuthTestActivity 등록 -->
-        <activity android:name=".AuthTestActivity" />
-
         <!-- OcrProductActivity 등록 -->
         <activity android:name=".OcrActivity" />
 
         <!-- LoginActivity 등록 -->
         <activity android:name=".LoginActivity" />
+
+        <!-- OrderSummaryActivity 등록 -->
+        <activity android:name=".OrderSummaryActivity" />
+
+        <!-- PaymentSuccessActivity 등록 -->
+        <activity android:name=".PaymentSuccessActivity" />
+
+        <!-- StockCheckActivity 등록 -->
+        <activity android:name=".InventoryActivity" />
+
+
 
     </application>
 

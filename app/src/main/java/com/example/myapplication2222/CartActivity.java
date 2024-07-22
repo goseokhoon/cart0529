@@ -23,11 +23,11 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CartActivity extends AppCompatActivity implements ProductAdapter.OnProductClickListener {
+public class CartActivity extends AppCompatActivity implements KartriderAdapter.OnProductClickListener {
 
     private RecyclerView recyclerView;
-    private ProductAdapter productAdapter;
-    private List<Product> productList;
+    private KartriderAdapter productAdapter;
+    private List<Kartrider> productList;
     private FirebaseFirestore db;
     private Context context;
     private TextView totalPriceTextView;
@@ -41,9 +41,9 @@ public class CartActivity extends AppCompatActivity implements ProductAdapter.On
 
         // RecyclerView 초기화
         recyclerView = findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setLayoutManager(new LinearLayoutManager(this)); // LinearLayoutManager를 통해 스크롤 설정
         productList = new ArrayList<>();
-        productAdapter = new ProductAdapter(productList, this, this); // Context로서 this(CartActivity)를 전달
+        productAdapter = new KartriderAdapter(productList, this, this); // Context로서 this(CartActivity)를 전달
         recyclerView.setAdapter(productAdapter);
 
         // 총 결제액 TextView 초기화
@@ -61,7 +61,10 @@ public class CartActivity extends AppCompatActivity implements ProductAdapter.On
         // '결제' 버튼 설정
         Button payButton = findViewById(R.id.pay_button);
         payButton.setOnClickListener(v -> {
-            Intent intent = new Intent(CartActivity.this, PayProductActivity.class);
+            Intent intent = new Intent(CartActivity.this, OrderSummaryActivity.class);
+            intent.putParcelableArrayListExtra("PRODUCT_LIST", new ArrayList<>(productList));
+            intent.putExtra("TOTAL_PRICE", calculateTotalPrice());
+            intent.putExtra("TOTAL_QUANTITY", calculateTotalQuantity());
             startActivity(intent);
         });
     }
@@ -83,7 +86,7 @@ public class CartActivity extends AppCompatActivity implements ProductAdapter.On
                             Long quantityLong = document.getLong("quantity");
                             int quantity = (quantityLong != null) ? quantityLong.intValue() : 0;
 
-                            Product product = new Product(id, name, price, quantity);
+                            Kartrider product = new Kartrider(id, name, price, quantity);
                             productList.add(product);
                         }
                         productAdapter.notifyDataSetChanged(); // Adapter에 데이터 변경 알림
@@ -140,11 +143,11 @@ public class CartActivity extends AppCompatActivity implements ProductAdapter.On
         Long quantityLong = document.getLong("quantity");
         int quantity = (quantityLong != null) ? quantityLong.intValue() : 0;
 
-        Product updatedProduct = new Product(id, name, price, quantity);
+        Kartrider updatedProduct = new Kartrider(id, name, price, quantity);
 
         // 기존 목록에 추가되지 않았으면 새로 추가
         boolean isNewProduct = true;
-        for (Product product : productList) {
+        for (Kartrider product : productList) {
             if (product.getId().equals(id)) {
                 productList.set(productList.indexOf(product), updatedProduct);
                 productAdapter.notifyItemChanged(productList.indexOf(product)); // 변경된 위치의 아이템 업데이트
@@ -173,17 +176,32 @@ public class CartActivity extends AppCompatActivity implements ProductAdapter.On
 
     // 총 결제액을 계산하고 업데이트하는 함수
     private void updateTotalPrice() {
+        int totalPrice = calculateTotalPrice();
+        totalPriceTextView.setText("총 결제금액: " + totalPrice + "원");
+    }
+
+    // 총 결제액 계산
+    private int calculateTotalPrice() {
         int totalPrice = 0;
-        for (Product product : productList) {
+        for (Kartrider product : productList) {
             totalPrice += product.getPrice() * product.getQuantity();
         }
-        totalPriceTextView.setText("총 금액: " + totalPrice + "원");
+        return totalPrice;
+    }
+
+    // 총 수량 계산
+    private int calculateTotalQuantity() {
+        int totalQuantity = 0;
+        for (Kartrider product : productList) {
+            totalQuantity += product.getQuantity();
+        }
+        return totalQuantity;
     }
 
     // ProductAdapter에서 클릭 이벤트를 처리하기 위한 인터페이스 구현
     @Override
     public void onProductDeleteClick(int position) {
-        Product product = productList.get(position);
+        Kartrider product = productList.get(position);
         deleteProduct(product.getId()); // 상품 ID를 기반으로 상품 삭제 메서드 호출
         // Firestore에서도 삭제할 수 있도록 추가 작업 필요
         db.collection("kartrider").document(product.getId()).delete()
@@ -202,6 +220,9 @@ public class CartActivity extends AppCompatActivity implements ProductAdapter.On
         updateTotalPrice();
     }
 }
+
+
+
 
 
 

@@ -15,14 +15,14 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 
-public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductViewHolder> {
+public class KartriderAdapter extends RecyclerView.Adapter<KartriderAdapter.ProductViewHolder> {
 
-    private List<Product> productList;
+    private List<Kartrider> productList;
     private OnProductClickListener onProductClickListener;
     private Context context;
     private FirebaseFirestore db;
 
-    public ProductAdapter(List<Product> productList, OnProductClickListener listener, Context context) {
+    public KartriderAdapter(List<Kartrider> productList, OnProductClickListener listener, Context context) {
         this.productList = productList;
         this.onProductClickListener = listener;
         this.context = context;
@@ -32,13 +32,13 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     @NonNull
     @Override
     public ProductViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_product, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.item_kartrider, parent, false);
         return new ProductViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
-        Product product = productList.get(position);
+        Kartrider product = productList.get(position);
         holder.bind(product);
     }
 
@@ -71,7 +71,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             increaseButton.setOnClickListener(this);
         }
 
-        public void bind(Product product) {
+        public void bind(Kartrider product) {
             nameTextView.setText(product.getName());
             priceTextView.setText(String.valueOf(product.getPrice()));
             quantityTextView.setText(String.valueOf(product.getQuantity()));
@@ -80,12 +80,14 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         @Override
         public void onClick(View v) {
             int position = getAdapterPosition();
-            Product product = productList.get(position);
+            Kartrider product = productList.get(position);
 
             switch (v.getId()) {
                 case R.id.deleteButton:
                     // 삭제 버튼 클릭 시
-                    onProductClickListener.onProductDeleteClick(position);
+                    if (onProductClickListener != null) {
+                        onProductClickListener.onProductDeleteClick(position);
+                    }
                     break;
                 case R.id.decreaseButton:
                     // 감소 버튼 클릭 시
@@ -96,7 +98,9 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                         updatePrice(product);
                         // Firestore에서 수량 업데이트
                         updateProductInFirestore(product);
-                        onProductClickListener.onProductQuantityChanged(); // 수량 변경 이벤트 전달
+                        if (onProductClickListener != null) {
+                            onProductClickListener.onProductQuantityChanged(); // 수량 변경 이벤트 전달
+                        }
                     }
                     break;
                 case R.id.increaseButton:
@@ -106,19 +110,21 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                     updatePrice(product);
                     // Firestore에서 수량 업데이트
                     updateProductInFirestore(product);
-                    onProductClickListener.onProductQuantityChanged(); // 수량 변경 이벤트 전달
+                    if (onProductClickListener != null) {
+                        onProductClickListener.onProductQuantityChanged(); // 수량 변경 이벤트 전달
+                    }
                     break;
             }
         }
 
         // 가격 업데이트 메서드
-        private void updatePrice(Product product) {
+        private void updatePrice(Kartrider product) {
             int totalPrice = product.getPrice() * product.getQuantity();
             priceTextView.setText(String.valueOf(totalPrice));
         }
 
         // Firestore에서 상품 업데이트
-        private void updateProductInFirestore(Product product) {
+        private void updateProductInFirestore(Kartrider product) {
             db.collection("kartrider").document(product.getId())
                     .update("quantity", product.getQuantity())
                     .addOnCompleteListener(task -> {
@@ -137,6 +143,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         void onProductQuantityChanged(); // 수량 변경 시 호출
     }
 }
+
 
 
 

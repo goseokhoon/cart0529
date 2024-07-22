@@ -16,8 +16,8 @@ public class MainActivity extends AppCompatActivity {
         // 버튼 인스턴스를 가져옵니다.
         Button mapButton = findViewById(R.id.map_button);
         Button cartButton = findViewById(R.id.cart_button);
+        Button stockButton = findViewById(R.id.stock_button);
         Button ocrButton = findViewById(R.id.ocr_button);
-        Button authButton = findViewById(R.id.auth_button);
 
         // 지도 버튼에 클릭 리스너를 설정합니다.
         mapButton.setOnClickListener(new View.OnClickListener() {
@@ -38,6 +38,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // "재고 조회" 버튼 클릭 리스너 설정
+        stockButton = findViewById(R.id.stock_button);
+        stockButton.setOnClickListener(v -> {
+            // InventoryActivity로 이동
+            Intent intent = new Intent(MainActivity.this, InventoryActivity.class);
+            startActivity(intent);
+        });
+
         // 신분증 인식 버튼에 클릭 리스너를 설정합니다.
         ocrButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -47,13 +55,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent); // 액티비티 전환
             }
         });
-        authButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // ocr 화면으로 이동하는 Intent를 생성합니다.
-                Intent intent = new Intent(MainActivity.this, AuthTestActivity.class);
-                startActivity(intent); // 액티비티 전환
-            }
-        });
+
     }
 }

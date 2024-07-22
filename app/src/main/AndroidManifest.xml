@@ -40,9 +40,6 @@
         <!-- OcrProductActivity 등록 -->
         <activity android:name=".OcrActivity" />
 
-        <!-- LoginActivity 등록 -->
-        <activity android:name=".LoginActivity" />
-
         <!-- OrderSummaryActivity 등록 -->
         <activity android:name=".OrderSummaryActivity" />
 

@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PayProductActivity">
+    tools:context=".PaymentSuccessActivity">
 
     <!-- 추가 안내 메시지를 표시하는 TextView -->
     <TextView

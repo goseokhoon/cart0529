@@ -14,9 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -41,9 +39,9 @@ public class CartActivity extends AppCompatActivity implements KartriderAdapter.
 
         // RecyclerView 초기화
         recyclerView = findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this)); // LinearLayoutManager를 통해 스크롤 설정
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         productList = new ArrayList<>();
-        productAdapter = new KartriderAdapter(productList, this, this); // Context로서 this(CartActivity)를 전달
+        productAdapter = new KartriderAdapter(productList, this, this);
         recyclerView.setAdapter(productAdapter);
 
         // 총 결제액 TextView 초기화
@@ -74,113 +72,88 @@ public class CartActivity extends AppCompatActivity implements KartriderAdapter.
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        productList.clear(); // 기존 목록 초기화
+                        List<Kartrider> newProductList = new ArrayList<>();
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            String id = document.getId(); // 문서 ID 가져오기
-                            String name = document.getString("name");
-
-                            // 가격을 double로 가져와서 int로 변환
-                            Double priceDouble = document.getDouble("price");
-                            int price = (priceDouble != null) ? priceDouble.intValue() : 0;
-
-                            Long quantityLong = document.getLong("quantity");
-                            int quantity = (quantityLong != null) ? quantityLong.intValue() : 0;
-
-                            Kartrider product = new Kartrider(id, name, price, quantity);
-                            productList.add(product);
+                            Kartrider product = document.toObject(Kartrider.class);
+                            newProductList.add(product);
                         }
-                        productAdapter.notifyDataSetChanged(); // Adapter에 데이터 변경 알림
-                        updateTotalPrice(); // 총 결제액 업데이트
+                        runOnUiThread(() -> {
+                            productList.clear();
+                            productList.addAll(newProductList);
+                            productAdapter.notifyDataSetChanged();
+                            updateTotalPrice();
+                        });
                     } else {
-                        // 데이터 가져오기 실패 처리
-                        Exception e = task.getException();
-                        if (e != null) {
-                            Log.e("CartActivity", "Error fetching data: " + e.getMessage());
-                            Toast.makeText(context, "데이터를 가져오는 데 실패했습니다: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
+                        Log.e("CartActivity", "Error fetching data: " + task.getException());
+                        runOnUiThread(() -> Toast.makeText(context, "데이터를 가져오는 데 실패했습니다.", Toast.LENGTH_SHORT).show());
                     }
                 });
     }
 
     private void setupFirestoreListener() {
         db.collection("kartrider")
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@NonNull QuerySnapshot queryDocumentSnapshots, @NonNull FirebaseFirestoreException e) {
-                        if (e != null) {
-                            Log.w("CartActivity", "Listen failed.", e);
-                            return;
-                        }
-
+                .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                    if (e != null) {
+                        Log.w("CartActivity", "Listen failed.", e);
+                        return;
+                    }
+                    if (queryDocumentSnapshots != null) {
                         for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
+                            Kartrider updatedProduct = dc.getDocument().toObject(Kartrider.class);
                             switch (dc.getType()) {
                                 case ADDED:
-                                    Log.d("CartActivity", "New product: " + dc.getDocument().getData());
-                                    updateProductList(dc.getDocument());
+                                    addProductToList(updatedProduct);
                                     break;
                                 case MODIFIED:
-                                    Log.d("CartActivity", "Modified product: " + dc.getDocument().getData());
-                                    updateProductList(dc.getDocument());
+                                    updateProductInList(updatedProduct);
                                     break;
                                 case REMOVED:
-                                    Log.d("CartActivity", "Removed product: " + dc.getDocument().getData());
-                                    deleteProduct(dc.getDocument().getId());
+                                    removeProductFromList(updatedProduct.getId());
                                     break;
                             }
                         }
+                        updateTotalPrice();
                     }
                 });
     }
 
-    private void updateProductList(QueryDocumentSnapshot document) {
-        String id = document.getId(); // 문서 ID 가져오기
-        String name = document.getString("name");
+    private void addProductToList(Kartrider product) {
+        if (findProductIndexById(product.getId()) == -1) {
+            productList.add(product);
+            productAdapter.notifyItemInserted(productList.size() - 1);
+        }
+    }
 
-        // 가격을 double로 가져와서 int로 변환
-        Double priceDouble = document.getDouble("price");
-        int price = (priceDouble != null) ? priceDouble.intValue() : 0;
+    private void updateProductInList(Kartrider product) {
+        int index = findProductIndexById(product.getId());
+        if (index != -1) {
+            productList.set(index, product);
+            productAdapter.notifyItemChanged(index);
+        }
+    }
 
-        Long quantityLong = document.getLong("quantity");
-        int quantity = (quantityLong != null) ? quantityLong.intValue() : 0;
+    private void removeProductFromList(String productId) {
+        int index = findProductIndexById(productId);
+        if (index != -1) {
+            productList.remove(index);
+            productAdapter.notifyItemRemoved(index);
+        }
+    }
 
-        Kartrider updatedProduct = new Kartrider(id, name, price, quantity);
-
-        // 기존 목록에 추가되지 않았으면 새로 추가
-        boolean isNewProduct = true;
-        for (Kartrider product : productList) {
-            if (product.getId().equals(id)) {
-                productList.set(productList.indexOf(product), updatedProduct);
-                productAdapter.notifyItemChanged(productList.indexOf(product)); // 변경된 위치의 아이템 업데이트
-                isNewProduct = false;
-                break;
+    private int findProductIndexById(String id) {
+        for (int i = 0; i < productList.size(); i++) {
+            if (productList.get(i).getId().equals(id)) {
+                return i;
             }
         }
-
-        if (isNewProduct) {
-            productList.add(updatedProduct);
-            productAdapter.notifyItemInserted(productList.size() - 1); // 마지막 위치에 아이템 추가
-        }
-
-        // 총 결제액 업데이트
-        updateTotalPrice();
+        return -1;
     }
 
-    private void deleteProduct(String productId) {
-        // 상품 목록에서 제거
-        productList.removeIf(product -> product.getId().equals(productId));
-        productAdapter.notifyDataSetChanged();
-
-        // 총 결제액 업데이트
-        updateTotalPrice();
-    }
-
-    // 총 결제액을 계산하고 업데이트하는 함수
     private void updateTotalPrice() {
         int totalPrice = calculateTotalPrice();
         totalPriceTextView.setText("총 결제금액: " + totalPrice + "원");
     }
 
-    // 총 결제액 계산
     private int calculateTotalPrice() {
         int totalPrice = 0;
         for (Kartrider product : productList) {
@@ -189,7 +162,6 @@ public class CartActivity extends AppCompatActivity implements KartriderAdapter.
         return totalPrice;
     }
 
-    // 총 수량 계산
     private int calculateTotalQuantity() {
         int totalQuantity = 0;
         for (Kartrider product : productList) {
@@ -198,12 +170,10 @@ public class CartActivity extends AppCompatActivity implements KartriderAdapter.
         return totalQuantity;
     }
 
-    // ProductAdapter에서 클릭 이벤트를 처리하기 위한 인터페이스 구현
     @Override
     public void onProductDeleteClick(int position) {
         Kartrider product = productList.get(position);
-        deleteProduct(product.getId()); // 상품 ID를 기반으로 상품 삭제 메서드 호출
-        // Firestore에서도 삭제할 수 있도록 추가 작업 필요
+        removeProductFromList(product.getId());
         db.collection("kartrider").document(product.getId()).delete()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -214,22 +184,8 @@ public class CartActivity extends AppCompatActivity implements KartriderAdapter.
                 });
     }
 
-    // 수량 변경 이벤트를 처리하여 총 결제액 업데이트
     @Override
     public void onProductQuantityChanged() {
         updateTotalPrice();
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

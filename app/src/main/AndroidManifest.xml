@@ -19,38 +19,36 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication2222"
+
         tools:targetApi="31">
 
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+    <activity
+        android:name=".MainActivity"
+        android:exported="true">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+    </activity>
 
-        <!-- 나머지 활동들 등록 -->
-        <!-- MapActivity 등록 -->
-        <activity android:name=".MapActivity" />
+    <!-- 나머지 활동들 등록 -->
+    <!-- MapActivity 등록 -->
+    <activity android:name=".MapActivity" />
 
-        <!-- CartActivity 등록 -->
-        <activity android:name=".CartActivity" />
+    <!-- CartActivity 등록 -->
+    <activity android:name=".CartActivity" />
 
-        <!-- OcrProductActivity 등록 -->
-        <activity android:name=".OcrActivity" />
+    <!-- OcrProductActivity 등록 -->
+    <activity android:name=".OcrActivity" />
 
-        <!-- OrderSummaryActivity 등록 -->
-        <activity android:name=".OrderSummaryActivity" />
+    <!-- OrderSummaryActivity 등록 -->
+    <activity android:name=".OrderSummaryActivity" />
 
-        <!-- PaymentSuccessActivity 등록 -->
-        <activity android:name=".PaymentSuccessActivity" />
+    <!-- PaymentSuccessActivity 등록 -->
+    <activity android:name=".PaymentSuccessActivity" />
 
-        <!-- StockCheckActivity 등록 -->
-        <activity android:name=".InventoryActivity" />
-
-
+    <!-- StockCheckActivity 등록 -->
+    <activity android:name=".InventoryActivity" />
 
     </application>
-
 </manifest>

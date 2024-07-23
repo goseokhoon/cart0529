@@ -75,6 +75,7 @@ public class CartActivity extends AppCompatActivity implements KartriderAdapter.
                         List<Kartrider> newProductList = new ArrayList<>();
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Kartrider product = document.toObject(Kartrider.class);
+                            product.setId(document.getId()); // Firestore document ID를 Kartrider 객체에 설정
                             newProductList.add(product);
                         }
                         runOnUiThread(() -> {
@@ -100,6 +101,7 @@ public class CartActivity extends AppCompatActivity implements KartriderAdapter.
                     if (queryDocumentSnapshots != null) {
                         for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
                             Kartrider updatedProduct = dc.getDocument().toObject(Kartrider.class);
+                            updatedProduct.setId(dc.getDocument().getId()); // Firestore document ID를 Kartrider 객체에 설정
                             switch (dc.getType()) {
                                 case ADDED:
                                     addProductToList(updatedProduct);
@@ -118,32 +120,46 @@ public class CartActivity extends AppCompatActivity implements KartriderAdapter.
     }
 
     private void addProductToList(Kartrider product) {
-        if (findProductIndexById(product.getId()) == -1) {
-            productList.add(product);
-            productAdapter.notifyItemInserted(productList.size() - 1);
+        if (product != null && product.getId() != null) {
+            if (findProductIndexById(product.getId()) == -1) {
+                productList.add(product);
+                productAdapter.notifyItemInserted(productList.size() - 1);
+            }
+        } else {
+            Log.e("CartActivity", "Product or Product ID is null. Cannot add to list.");
         }
     }
 
     private void updateProductInList(Kartrider product) {
-        int index = findProductIndexById(product.getId());
-        if (index != -1) {
-            productList.set(index, product);
-            productAdapter.notifyItemChanged(index);
+        if (product != null && product.getId() != null) {
+            int index = findProductIndexById(product.getId());
+            if (index != -1) {
+                productList.set(index, product);
+                productAdapter.notifyItemChanged(index);
+            }
+        } else {
+            Log.e("CartActivity", "Product or Product ID is null. Cannot update list.");
         }
     }
 
     private void removeProductFromList(String productId) {
-        int index = findProductIndexById(productId);
-        if (index != -1) {
-            productList.remove(index);
-            productAdapter.notifyItemRemoved(index);
+        if (productId != null) {
+            int index = findProductIndexById(productId);
+            if (index != -1) {
+                productList.remove(index);
+                productAdapter.notifyItemRemoved(index);
+            }
+        } else {
+            Log.e("CartActivity", "Product ID is null. Cannot remove from list.");
         }
     }
 
     private int findProductIndexById(String id) {
-        for (int i = 0; i < productList.size(); i++) {
-            if (productList.get(i).getId().equals(id)) {
-                return i;
+        if (id != null) {
+            for (int i = 0; i < productList.size(); i++) {
+                if (id.equals(productList.get(i).getId())) {
+                    return i;
+                }
             }
         }
         return -1;
@@ -173,15 +189,18 @@ public class CartActivity extends AppCompatActivity implements KartriderAdapter.
     @Override
     public void onProductDeleteClick(int position) {
         Kartrider product = productList.get(position);
-        removeProductFromList(product.getId());
-        db.collection("kartrider").document(product.getId()).delete()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Log.d("CartActivity", "DocumentSnapshot successfully deleted!");
-                    } else {
-                        Log.w("CartActivity", "Error deleting document", task.getException());
-                    }
-                });
+        if (product != null && product.getId() != null && !product.getId().isEmpty()) {
+            db.collection("kartrider").document(product.getId()).delete()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Log.d("CartActivity", "DocumentSnapshot successfully deleted!");
+                        } else {
+                            Log.w("CartActivity", "Error deleting document", task.getException());
+                        }
+                    });
+        } else {
+            Log.e("CartActivity", "Product or Product ID is null or empty. Cannot delete from Firestore.");
+        }
     }
 
     @Override

@@ -1,11 +1,17 @@
 package com.example.myapplication2222;
 
+import android.graphics.Color;
+import com.google.android.material.snackbar.Snackbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 
@@ -43,16 +49,44 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
     }
 
     static class InventoryViewHolder extends RecyclerView.ViewHolder {
-
-        // UI 요소 선언 및 초기화
+        private TextView nameTextView;
+        private TextView priceTextView;
+        private TextView stockTextView;
 
         public InventoryViewHolder(@NonNull View itemView) {
             super(itemView);
-            // UI 요소 초기화
+            nameTextView = itemView.findViewById(R.id.nameTextView);
+            priceTextView = itemView.findViewById(R.id.priceTextView);
+            stockTextView = itemView.findViewById(R.id.stockTextView);
+
+            itemView.setOnClickListener(v -> {
+                String stockText = stockTextView.getText().toString();
+                if (stockText.contains("품절")) {
+                    showSnackbar(v, "품절", R.color.color_white, R.color.color_red);
+                } else {
+                    showSnackbar(v, "재고 " + stockText + " 이하", R.color.color_white, R.color.color_on_secondary);
+                }
+            });
+        }
+
+        private void showSnackbar(View view, String message, int textColor, int backgroundColor) {
+            Snackbar snackbar = Snackbar.make(view, message, Snackbar.LENGTH_SHORT);
+            snackbar.setTextColor(view.getResources().getColor(textColor));
+            snackbar.setBackgroundTint(view.getResources().getColor(backgroundColor));
+            snackbar.show();
         }
 
         public void bind(InventoryItem item) {
-            // UI 요소에 데이터 바인딩
+            nameTextView.setText(item.getName());
+            priceTextView.setText(String.format("%d원", item.getPrice())); // 가격에 단위 추가
+            int stock = item.getStock();
+            if (stock > 0) {
+                stockTextView.setText(String.format("%d개", stock)); // 재고에 단위 추가
+                stockTextView.setTextColor(itemView.getResources().getColor(android.R.color.black)); // 기본 텍스트 색상
+            } else {
+                stockTextView.setText("품절");
+                stockTextView.setTextColor(itemView.getResources().getColor(android.R.color.holo_red_dark)); // 빨간색으로 표시
+            }
         }
     }
 
@@ -78,14 +112,25 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
 
         @Override
         public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-            // 아이템의 고유성을 판단할 수 있는 기준이 있다면 사용
-            return oldList.get(oldItemPosition).getName().equals(newList.get(newItemPosition).getName());
+            InventoryItem oldItem = oldList.get(oldItemPosition);
+            InventoryItem newItem = newList.get(newItemPosition);
+
+            if (oldItem == null || newItem == null) {
+                return oldItem == newItem;
+            }
+
+            String oldId = oldItem.getId();
+            String newId = newItem.getId();
+
+            return oldId != null && oldId.equals(newId);
         }
 
         @Override
         public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-            return oldList.get(oldItemPosition).equals(newList.get(newItemPosition));
+            InventoryItem oldItem = oldList.get(oldItemPosition);
+            InventoryItem newItem = newList.get(newItemPosition);
+
+            return oldItem != null && newItem != null && oldItem.equals(newItem);
         }
     }
 }
-

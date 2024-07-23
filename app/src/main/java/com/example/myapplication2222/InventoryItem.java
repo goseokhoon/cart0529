@@ -1,20 +1,29 @@
 package com.example.myapplication2222;
 
 public class InventoryItem {
-    private String name;
-    private int price;
-    private int stock;
+    private String id; // 상품 ID
+    private String name; // 상품 이름
+    private int price; // 상품 가격
+    private int stock; // 상품 재고
 
     // 기본 생성자 필요 (Firestore에서 사용)
     public InventoryItem() {}
 
-    public InventoryItem(String name, int price, int stock) {
-
+    public InventoryItem(String id, String name, int price, int stock) {
+        this.id = id;
         this.name = name;
         this.price = price;
         this.stock = stock;
     }
 
+    // Getter 및 Setter 메서드
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
@@ -24,19 +33,34 @@ public class InventoryItem {
         this.name = name;
     }
 
-    public int getStock() {
-        return stock;
-    }
-
-    public void setQuantity(int stock) {
-        this.stock= stock;
-    }
-
     public int getPrice() {
         return price;
     }
 
     public void setPrice(int price) {
         this.price = price;
+    }
+
+    public int getStock() {
+        return stock;
+    }
+
+    public void setStock(int stock) {
+        this.stock = stock;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        InventoryItem that = (InventoryItem) o;
+
+        return id != null ? id.equals(that.id) : that.id == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
 }

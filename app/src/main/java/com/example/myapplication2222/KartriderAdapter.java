@@ -80,40 +80,39 @@ public class KartriderAdapter extends RecyclerView.Adapter<KartriderAdapter.Prod
         @Override
         public void onClick(View v) {
             int position = getAdapterPosition();
+            if (position == RecyclerView.NO_POSITION) return; // AdapterPosition이 유효하지 않은 경우 무시
+
             Kartrider product = productList.get(position);
 
-            switch (v.getId()) {
-                case R.id.deleteButton:
-                    // 삭제 버튼 클릭 시
-                    if (onProductClickListener != null) {
-                        onProductClickListener.onProductDeleteClick(position);
-                    }
-                    break;
-                case R.id.decreaseButton:
-                    // 감소 버튼 클릭 시
-                    int currentQuantity = product.getQuantity();
-                    if (currentQuantity > 0) {
-                        product.setQuantity(currentQuantity - 1);
-                        quantityTextView.setText(String.valueOf(currentQuantity - 1));
-                        updatePrice(product);
-                        // Firestore에서 수량 업데이트
-                        updateProductInFirestore(product);
-                        if (onProductClickListener != null) {
-                            onProductClickListener.onProductQuantityChanged(); // 수량 변경 이벤트 전달
-                        }
-                    }
-                    break;
-                case R.id.increaseButton:
-                    // 증가 버튼 클릭 시
-                    product.setQuantity(product.getQuantity() + 1);
-                    quantityTextView.setText(String.valueOf(product.getQuantity()));
+            int viewId = v.getId();
+            if (viewId == R.id.deleteButton) {
+                // 삭제 버튼 클릭 시
+                if (onProductClickListener != null) {
+                    onProductClickListener.onProductDeleteClick(position);
+                }
+            } else if (viewId == R.id.decreaseButton) {
+                // 감소 버튼 클릭 시
+                int currentQuantity = product.getQuantity();
+                if (currentQuantity > 0) {
+                    product.setQuantity(currentQuantity - 1);
+                    quantityTextView.setText(String.valueOf(currentQuantity - 1));
                     updatePrice(product);
                     // Firestore에서 수량 업데이트
                     updateProductInFirestore(product);
                     if (onProductClickListener != null) {
                         onProductClickListener.onProductQuantityChanged(); // 수량 변경 이벤트 전달
                     }
-                    break;
+                }
+            } else if (viewId == R.id.increaseButton) {
+                // 증가 버튼 클릭 시
+                product.setQuantity(product.getQuantity() + 1);
+                quantityTextView.setText(String.valueOf(product.getQuantity()));
+                updatePrice(product);
+                // Firestore에서 수량 업데이트
+                updateProductInFirestore(product);
+                if (onProductClickListener != null) {
+                    onProductClickListener.onProductQuantityChanged(); // 수량 변경 이벤트 전달
+                }
             }
         }
 
@@ -125,13 +124,18 @@ public class KartriderAdapter extends RecyclerView.Adapter<KartriderAdapter.Prod
 
         // Firestore에서 상품 업데이트
         private void updateProductInFirestore(Kartrider product) {
+            if (product.getId() == null || product.getId().isEmpty()) {
+                Log.e("KartriderAdapter", "Product ID is null or empty. Cannot update Firestore.");
+                return;
+            }
+
             db.collection("kartrider").document(product.getId())
                     .update("quantity", product.getQuantity())
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            Log.d("ProductAdapter", "Product updated successfully!");
+                            Log.d("KartriderAdapter", "Product updated successfully!");
                         } else {
-                            Log.w("ProductAdapter", "Error updating product", task.getException());
+                            Log.w("KartriderAdapter", "Error updating product", task.getException());
                         }
                     });
         }
@@ -143,15 +147,3 @@ public class KartriderAdapter extends RecyclerView.Adapter<KartriderAdapter.Prod
         void onProductQuantityChanged(); // 수량 변경 시 호출
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,22 +1,23 @@
+// 프로젝트 수준의 build.gradle 파일
+
 buildscript {
-    ext.kotlin_version = '1.6.21' // Kotlin 버전을 적절히 설정해주세요
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.4.1' // 적절한 버전으로 설정
-        classpath 'com.google.gms:google-services:4.4.2'
-        // 기타 필요한 클래스패스 의존성 추가
+        classpath 'com.android.tools.build:gradle:8.5.1'
+        classpath 'com.google.gms:google-services:4.3.15'
     }
-
 }
+
 allprojects {
     repositories {
-        maven { url 'https://jitpack.io' }
+        google()
+        mavenCentral()
     }
 }
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
-
